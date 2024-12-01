@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Conversion Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        button {
+            background-color: #6200ea;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3700b3;
+        }
+        .output {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Conversion Tool</h1>
+
+
+    <form id="docxToImageForm" enctype="multipart/form-data">
+        <h3>Convert DOCX to Binary Image</h3>
+        <input type="file" id="docxInput" name="docxFile" accept=".docx" required>
+        <button type="submit">Convert to Image</button>
+    </form>
+
+
+    <form id="imageToDocxForm" enctype="multipart/form-data">
+        <h3>Convert Binary Image to DOCX</h3>
+        <input type="file" id="imageInput" name="binaryImage" accept="image/png" required>
+        <button type="submit">Convert to DOCX</button>
+    </form>
+
+    <div class="output" id="outputMessage">
+
+    </div>
+
+    <script>
+        const docxToImageForm = document.getElementById('docxToImageForm');
+        const imageToDocxForm = document.getElementById('imageToDocxForm');
+        const outputMessage = document.getElementById('outputMessage');
+
+        // Handle DOCX to Image conversion
+        docxToImageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(docxToImageForm);
+
+            try {
+                const response = await fetch('/convert-docx-to-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                const blob = await response.blob();
+
+                // Create a downloadable link for the image
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'binary_image.png';
+                link.textContent = 'Download Binary Image';
+                outputMessage.innerHTML = '';
+                outputMessage.appendChild(link);
+            } catch (error) {
+                outputMessage.textContent = 'Error: Unable to convert DOCX to image.';
+                console.error(error);
+            }
+        });
+
+        // Handle Image to DOCX conversion
+        imageToDocxForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(imageToDocxForm);
+
+            try {
+                const response = await fetch('/convert-image-to-docx', {
+                    method: 'POST',
+                    body: formData
+                });
+                const blob = await response.blob();
+
+                // Create a downloadable link for the DOCX
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'reconstructed.docx';
+                link.textContent = 'Download DOCX File';
+                outputMessage.innerHTML = '';
+                outputMessage.appendChild(link);
+            } catch (error) {
+                outputMessage.textContent = 'Error: Unable to convert image to DOCX.';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
